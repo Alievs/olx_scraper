@@ -15,3 +15,6 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader \
     && php artisan config:cache \
     && php artisan route:cache
+
+ENTRYPOINT ["sh", "/var/www/html/docker/entrypoint.sh"]
+CMD ["php-fpm"]

@@ -14,4 +14,5 @@ COPY . .
 
 RUN composer install --no-dev --optimize-autoloader
 
+ENTRYPOINT ["sh", "/var/www/html/docker/entrypoint.sh"]
 CMD ["php", "artisan", "schedule:work"]

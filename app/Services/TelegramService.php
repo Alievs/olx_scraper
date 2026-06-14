@@ -26,10 +26,10 @@ class TelegramService
                 ],
             ]);
         } catch (GuzzleException $e) {
-            \Log::error('Telegram sendMessage failed', [
+            rescue(fn () => \Log::error('Telegram sendMessage failed', [
                 'chat_id' => $chatId,
                 'error'   => $e->getMessage(),
-            ]);
+            ]), null, false);
         }
     }
 

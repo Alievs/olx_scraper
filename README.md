@@ -7,17 +7,17 @@
    ```bash
    cp .env.example .env
    ```
-
-2. Згенерувати APP key:
-
-   ```bash
-   php artisan key:generate
-   ```
-
-3. Встановити залежності:
+   
+2. Встановити залежності:
 
    ```bash
    composer install
+   ```
+   
+3. Згенерувати APP key:
+
+   ```bash
+   php artisan key:generate
    ```
 
 4. Зібрати контейнери:

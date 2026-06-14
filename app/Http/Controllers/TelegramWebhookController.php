@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\SubscriptionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class TelegramWebhookController extends Controller
 {
@@ -14,7 +15,7 @@ class TelegramWebhookController extends Controller
 
     public function handle(Request $request): JsonResponse
     {
-        \Log::info('Telegram webhook', $request->all());
+        rescue(fn () => Log::info('Telegram webhook', $request->all()), null, false);
 
         $message = $request->input('message');
 
