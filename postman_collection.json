@@ -1,0 +1,207 @@
+{
+  "info": {
+    "name": "OLX Price Tracker",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "chat_id",
+      "value": "570339734",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Subscriptions",
+      "item": [
+        {
+          "name": "Subscribe via deep-link (no chat_id)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://www.olx.ua/d/uk/obyavlenie/XXXXX.html\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/subscriptions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subscriptions"]
+            },
+            "description": "No chat_id. Returns 201 (listing already exists) or 202 (listing being fetched) with a bot_link. Open bot_link, press Start to confirm. The bot replies with your chat_id for future use."
+          }
+        },
+        {
+          "name": "Subscribe with chat_id",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://www.olx.ua/d/uk/obyavlenie/XXXXX.html\",\n  \"chat_id\": \"{{chat_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/subscriptions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subscriptions"]
+            },
+            "description": "chat_id must be a previously registered chat (user gets it from the bot after /start). Returns 201 (subscribed, listing exists) or 202 (listing being fetched, will subscribe after parsing). No Start round-trip needed."
+          }
+        },
+        {
+          "name": "Subscribe — unknown chat_id (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://www.olx.ua/d/uk/obyavlenie/XXXXX.html\",\n  \"chat_id\": \"000000000\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/subscriptions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subscriptions"]
+            },
+            "description": "chat_id not registered in telegram_chats. Expected: 422."
+          }
+        },
+        {
+          "name": "Subscribe — invalid domain (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://rozetka.com.ua/item/123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/subscriptions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subscriptions"]
+            },
+            "description": "Non-OLX domain. Expected: 422 Unprocessable Entity."
+          }
+        },
+        {
+          "name": "Subscribe — empty body (422)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/subscriptions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subscriptions"]
+            },
+            "description": "Missing url. Expected: 422."
+          }
+        },
+        {
+          "name": "Unsubscribe (DELETE)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chat_id\": \"{{chat_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/subscriptions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "subscriptions"]
+            },
+            "description": "Removes all subscriptions for the chat and deactivates it. Expected: 200."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Telegram",
+      "item": [
+        {
+          "name": "Webhook — /start (plain)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": {\n    \"from\": { \"id\": {{chat_id}} },\n    \"text\": \"/start\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/telegram/webhook",
+              "host": ["{{base_url}}"],
+              "path": ["api", "telegram", "webhook"]
+            },
+            "description": "Simulates Telegram update for plain /start. Registers chat and bot replies with the chat_id. In production Telegram calls this URL itself."
+          }
+        },
+        {
+          "name": "Webhook — /start TOKEN (deep-link)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": {\n    \"from\": { \"id\": {{chat_id}} },\n    \"text\": \"/start PASTE_TOKEN_FROM_BOT_LINK\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/telegram/webhook",
+              "host": ["{{base_url}}"],
+              "path": ["api", "telegram", "webhook"]
+            },
+            "description": "Simulates pressing Start on bot_link. TOKEN comes from the bot_link returned by POST /subscriptions. Subscribes the chat to the listing."
+          }
+        },
+        {
+          "name": "Webhook — /stop",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": {\n    \"from\": { \"id\": {{chat_id}} },\n    \"text\": \"/stop\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/telegram/webhook",
+              "host": ["{{base_url}}"],
+              "path": ["api", "telegram", "webhook"]
+            },
+            "description": "Unsubscribes the chat from all listings and deactivates it."
+          }
+        }
+      ]
+    }
+  ]
+}
